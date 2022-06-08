@@ -1,15 +1,17 @@
-package com.digital_medical.DigitalMedical.doctor;
+package com.digital_medical.DigitalMedical.user;
 
 
+import com.digital_medical.DigitalMedical.role.RoleEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name="doctors")
+@Table(name="users")
 @Data
-public class DoctorEntity {
+public class UserEntity {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
@@ -36,11 +38,16 @@ public class DoctorEntity {
     @Column(nullable = false)
     private String department;
 
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    @JsonIgnoreProperties("users")
+    private RoleEntity role;
 
-    public DoctorEntity() {
+
+    public UserEntity() {
     }
 
-    public DoctorEntity(String id, String password, String name, String surname, String birthDate, String gender, String email, String department) {
+    public UserEntity(String id, String password, String name, String surname, String birthDate, String gender, String email, String department) {
         this.id = id;
         this.password = password;
         this.name = name;
@@ -51,7 +58,7 @@ public class DoctorEntity {
         this.department = department;
     }
 
-    public DoctorEntity(String password, String name, String surname, String birthDate, String gender, String email, String department) {
+    public UserEntity(String password, String name, String surname, String birthDate, String gender, String email, String department) {
         this.password = password;
         this.name = name;
         this.surname = surname;
