@@ -2,7 +2,8 @@ import { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { RegisterAPI } from "../../services/userServices";
 import {useNavigate} from "react-router-dom"
-
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 const RegisterForm = () => {
     const navigate = useNavigate();
@@ -18,8 +19,9 @@ const RegisterForm = () => {
 
     const handleSubmit =  async(event) =>{
         
+        if(userDepartment === "1112"){
         event.preventDefault();
-        const userRegister = await RegisterAPI({
+        await RegisterAPI({
             "password": userPassword,
             "email": userEmail,
             "name": userName,
@@ -27,8 +29,33 @@ const RegisterForm = () => {
             "birthDate": userBirth,
             "gender": userGender,
             "department": userDepartment,
-        });
-            console.log('userRegister', userRegister);
+        }).then(async (res) => {
+            if (res.status === 400) {
+                console.log("error")
+              }
+              else {
+               
+                navigate("/login");
+
+              }
+          });
+        }else{
+            event.preventDefault();
+            alert("Code is invalid")
+            
+        }
+
+        // event.preventDefault();
+        // const userRegister = await RegisterAPI({
+        //     "password": userPassword,
+        //     "email": userEmail,
+        //     "name": userName,
+        //     "surname": userSurname,
+        //     "birthDate": userBirth,
+        //     "gender": userGender,
+        //     "department": userDepartment,
+        // });
+        //     console.log('userRegister', userRegister);
         
     };
 
@@ -39,35 +66,56 @@ const RegisterForm = () => {
 
     return (
         <div className={classes.mainContainer}>
-            <div className={classes.colorContainer}> 
-                Login
+            <div className={classes.headline}>
+                <p>Welcome to Digital Medical.</p>
             </div>
             <div className={classes.formContainer}>
-                <form onSubmit={handleSubmit}>
-                    <h2>Enter name</h2>
-                    <input type="text" placeholder="Email" onChange={(e) => setUserName(e.target.value)}/>
 
-                    <h2>Enter surname</h2>
-                    <input type="text" placeholder="Email" onChange={(e) => setUserSurname(e.target.value)}/>
+                <form className="rounded p-4 p-sm-3" onSubmit={handleSubmit}>
 
-                    <h2>Enter date of birth</h2>
-                    <input type="text" placeholder="Email" onChange={(e) => setUserBirth(e.target.value)}/>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">Name</Form.Label>
+                        <Form.Control type="text" placeholder="Enter name" onChange={(e) => setUserName(e.target.value)}/>
+                    </Form.Group>
 
-                    <h2>Enter gender</h2>
-                    <input type="text" placeholder="Email" onChange={(e) => setUserGender(e.target.value)}/>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">Surname</Form.Label>
+                        <Form.Control type="text" placeholder="Enter surname" onChange={(e) => setUserSurname(e.target.value)}/>   
+                    </Form.Group>
 
-                    <h2>Enter department</h2>
-                    <input type="text" placeholder="Email" onChange={(e) => setUserDepartment(e.target.value)}/>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">Email</Form.Label>
+                        <Form.Control type="email" placeholder="Enter email" onChange={(e) => setUserEmail(e.target.value)}/>   
+                    </Form.Group>
 
-                    <h2>Enter email</h2>
-                    <input type="text" placeholder="Email" onChange={(e) => setUserEmail(e.target.value)}/>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">Password</Form.Label>
+                        <Form.Control type="password" placeholder="Enter password" onChange={(e) => setUserPassword(e.target.value)}/>
+                    </Form.Group>
 
-                    <h2>Enter password</h2>
-                    <input type="text" placeholder="password" onChange={(e) => setUserPassword(e.target.value)}/>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">Date of Birth</Form.Label>
+                        <Form.Control type="date" placeholder="Enter date of birth" onChange={(e) => setUserBirth(e.target.value)}/>   
+                    </Form.Group>
 
-                    <button type="submit">Register</button>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">Gender</Form.Label>
+                        <Form.Control type="text" placeholder="Enter gender" onChange={(e) => setUserGender(e.target.value)}/>   
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">DepartmentCode</Form.Label>
+                        <Form.Control type="password" placeholder="Enter your code" onChange={(e) => setUserDepartment(e.target.value)}/>
+                    </Form.Group>
+
+                    
+
+                    <button className="btn btn-primary" type="submit" disabled={!userName || !userSurname || !userEmail || !userPassword} >Register</button>
+
+                    <p className="mt-3">You have an account? <a href="/login">Sign in</a></p>
+
+
                 </form>
-                <button onClick={handleRoute}>Login</button>
             </div>
         </div>
     )
@@ -75,18 +123,22 @@ const RegisterForm = () => {
 
 const useStyles = makeStyles({
 
-    mainContainer: {
-        display: "flex"
+    mainContainer:{
+        height: "100vh",
+        backgroundColor: "#90DDF0"
     },
 
-    colorContainer: {
-        width: "35%",
-        backgroundColor: "#90DDF0"
+    headline:{
+        paddingTop: "50px",
+        fontSize: "32px",
+
     },
 
     formContainer: {
         width: "55%",
-        margin: "0 auto"
+        margin: "50px auto",
+        backgroundColor: "white",
+        borderRadius: "7%"
     }
 
 });

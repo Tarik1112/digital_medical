@@ -2,14 +2,17 @@ import { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { LoginAPI } from "../../services/userServices";
 import {useNavigate} from "react-router-dom"
-
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import {useDispatch} from "react-redux";
+import {setAuthenticateToken} from "../../redux/actions/Actions";
 
 const LoginForm = () => {
     const navigate = useNavigate();
     const classes = useStyles();
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
-
+    const dispatch = useDispatch();
 
     const handleSubmit =  async(event) =>{
         
@@ -21,33 +24,36 @@ const LoginForm = () => {
             console.log('userlogin', userLogin);
             if(userLogin.hasOwnProperty('token')){
                 console.log("OK");
+                navigate("/dashboard", {state: userLogin});
+                dispatch(setAuthenticateToken(userLogin));
             }else{
                 console.log("Error")
             }
         
     };
 
-    const handleRoute = () => {
-        navigate("/register");
-    }
 
 
     return (
         <div className={classes.mainContainer}>
-            <div className={classes.colorContainer}> 
-                Login
+            <div className={classes.headline}>
+                <p>Login to the system.</p>
             </div>
             <div className={classes.formContainer}>
-                <form onSubmit={handleSubmit}>
-                    <h2>Enter email</h2>
-                    <input type="text" placeholder="Email" onChange={(e) => setUserEmail(e.target.value)}/>
+                <form className="rounded p-4 p-sm-3" onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">Email</Form.Label>
+                        <Form.Control type="email" placeholder="Enter email" onChange={(e) => setUserEmail(e.target.value)}/>                
+                    </Form.Group>
 
-                    <h2>Enter password</h2>
-                    <input type="text" placeholder="password" onChange={(e) => setUserPassword(e.target.value)}/>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="label">Password</Form.Label>
+                        <Form.Control type="password" placeholder="Password" onChange={(e) => setUserPassword(e.target.value)} />
+                    </Form.Group>
+                    <button className="btn btn-primary" type="submit">Login</button>
 
-                    <button type="submit">Login</button>
+                    <p className="mt-3">You don't have an account? <a href="/register">Sign up</a></p>
                 </form>
-                <button onClick={handleRoute}>Register</button>
             </div>
         </div>
     )
@@ -56,17 +62,19 @@ const LoginForm = () => {
 const useStyles = makeStyles({
 
     mainContainer: {
-        display: "flex"
+        height: "100vh",
+        backgroundColor: "#90DDF0"
     },
 
-    colorContainer: {
-        width: "35%",
-        backgroundColor: "#90DDF0"
+    headline:{
+        paddingTop: "50px",
+        fontSize: "32px",
     },
 
     formContainer: {
         width: "55%",
-        margin: "0 auto"
+        margin: "50px auto",
+        backgroundColor: "white",
     }
 
 });
