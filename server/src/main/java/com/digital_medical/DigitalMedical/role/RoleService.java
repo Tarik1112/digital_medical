@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 @Service
-public class RoleService {
+public class RoleService{
     @Autowired
     private RoleRepository roleRepository;
 
@@ -16,7 +16,8 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
-    public RoleEntity findByName(String name){
+
+    public RoleEntity findByName(String name) {
         return roleRepository.findByName(name);
     }
 

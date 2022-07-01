@@ -1,6 +1,8 @@
 package com.digital_medical.DigitalMedical.user;
 
+import com.digital_medical.DigitalMedical.role.RoleService;
 import com.digital_medical.DigitalMedical.security.JwtTokenProvider;
+import io.swagger.annotations.ApiImplicitParam;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,10 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
 
 @RestController
 @RequestMapping(path = "api/doctor")
@@ -27,6 +29,9 @@ public class UserController {
     private  UserServices userService;
 
     @Autowired
+    private RoleService roleService;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -34,8 +39,23 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public void doctorRegister(@RequestBody UserEntity doctor){
+    public ResponseEntity<String> doctorRegister(@RequestBody UserEntity doctor) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+
         userService.addNewDoctor(doctor);
+        String responseMessage = "User successfully registered on DigitalMedical.";
+        jsonObject.put("status", responseMessage);
+        return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+    }
+
+    @PostMapping("/register_patient")
+    public ResponseEntity<String> patientRegister(@RequestBody UserEntity doctor) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+
+        userService.addNewPatient(doctor);
+        String responseMessage = "Patient successfully registered on DigitalMedical.";
+        jsonObject.put("status", responseMessage);
+        return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -60,6 +80,46 @@ public class UserController {
                 e1.printStackTrace();
             }
             return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/get-current-user")
+    @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", example = "Bearer access_token")
+    public ResponseEntity<UserEntity> getCurrentUser() {
+        log.info("UserServiceImpl : get current user");
+        JSONObject jsonObject = new JSONObject();
+        try {
+            UserEntity currentUser = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+            if(currentUser != null) return new ResponseEntity<>(currentUser, HttpStatus.OK);
+            throw new JSONException("User was not found in the database.");
+        } catch (JSONException e) {
+            try {
+                jsonObject.put("exception", e.getMessage());
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/get-patients")
+    @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, paramType = "header", example = "Bearer access_token")
+    public ResponseEntity<Collection> getPatients() {
+        log.info("UserServiceImpl : get patients");
+        JSONObject jsonObject = new JSONObject();
+        try {
+            if(userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).getRole() == roleService.findByName("DOCTOR")){
+                return new ResponseEntity<>(userService.findAllPatients(), HttpStatus.OK);
+            }
+            throw new JSONException("No patients found in the database.");
+
+        } catch (JSONException e) {
+            try {
+                jsonObject.put("exception", e.getMessage());
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

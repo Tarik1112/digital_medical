@@ -1,12 +1,15 @@
 package com.digital_medical.DigitalMedical.user;
 
 
+import com.digital_medical.DigitalMedical.appointment.AppointmentEntity;
 import com.digital_medical.DigitalMedical.role.RoleEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Table(name="users")
@@ -42,6 +45,10 @@ public class UserEntity {
     @JoinColumn(name = "role_id")
     @JsonIgnoreProperties("users")
     private RoleEntity role;
+
+    @OneToMany(targetEntity = AppointmentEntity.class, mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Collection<AppointmentEntity> appointments;
 
 
     public UserEntity() {
